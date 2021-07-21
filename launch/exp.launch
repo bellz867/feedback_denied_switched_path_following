@@ -1,0 +1,103 @@
+<?xml version="1.0"?>
+
+<launch>
+  <arg name="cameraName" default="camera" />
+  <arg name="markerSize" default="0.18" />
+  <arg name="drawMarkers" default="true" />
+  <arg name="adaptiveROI" default="true" />
+  <arg name="image_frame_id" default="bebop_image" />
+  <arg name="republishCamInfo" default="false" />
+  <arg name="drawROI" default="true" />
+  <arg name="view" default="true" />
+  
+  
+  <arg name="loopRate" default="600" />
+  <arg name="trajectory_type" default="0" />
+  <arg name="boundary_type" default="0" />
+  <arg name="secondary_type" default="0" />
+  <arg name="switched_type" default="0" />
+  <arg name="primary_radius" default="1.5" />
+  <arg name="boundary_radius" default="0.7" />
+  <arg name="feedback_radius" default="1" />  
+  <arg name="sec" default="30" />
+  
+  <arg name="e1_max" default="0.45" />
+  <arg name="e2_max" default="0.45" />
+  <arg name="e1_min" default="0.07" />
+  <arg name="e2_min" default="0.07" />
+  <arg name="bebopName" default="bebop1" />
+  <arg name="k1" default="[0.4,0.4,0.4]" />
+  <arg name="k2" default="[0.55,0.55,0.55]" />
+  <arg name="dmax" default="[0.025,0.025,0.025]" />
+  <arg name="lu" default="0.01" />
+  <arg name="linVelGains" default="[0.7, 0.16, 0.2]" />
+  <arg name="angVelGains" default="[0.9, 0.3, 0.8]" />
+  
+  
+  <node pkg="bebop_sw_basic" type="controller_node" name="controller_node" output="screen">
+	<param name="bebopName" value="$(arg bebopName)" />
+	<param name="loopRate" value="$(arg loopRate)" />
+	<param name="boundary_radius" value="$(arg boundary_radius)" />
+	<rosparam param="k1" subst_value="True"> $(arg k1)</rosparam>
+	<rosparam param="k2" subst_value="True"> $(arg k2)</rosparam>
+	<rosparam param="dmax" subst_value="True"> $(arg dmax)</rosparam>
+  </node>
+  
+  <node pkg="bebop_sw_basic" type="primary_trajectory_node" name="primary_trajectory" output="screen">
+	<param name="loopRate" value="$(arg loopRate)" />
+	<param name="trajectory_type" value="$(arg trajectory_type)" />
+	<param name="primary_radius" value="$(arg primary_radius)" />
+	<param name="bebopName" value="$(arg bebopName)" />
+	<param name="sec" value="$(arg sec)" />
+	
+  </node>
+  <node pkg="bebop_sw_basic" type="feedback_boundary_node" name="feedback_boundary" output="screen">
+	<param name="loopRate" value="$(arg loopRate)" />
+	<param name="boundary_type" value="$(arg boundary_type)" />
+	<param name="boundary_radius" value="$(arg boundary_radius)" />
+	<param name="bebopName" value="$(arg bebopName)" />
+	<param name="sec" value="$(arg sec)" />
+  </node>
+  <node pkg="bebop_sw_basic" type="secondary_trajectory_node" name="secondary_trajectory" output="screen">
+	<param name="e1_max" value="$(arg e1_max)" />
+	<param name="e2_max" value="$(arg e2_max)" />
+	<param name="loopRate" value="$(arg loopRate)" />
+	<param name="secondary_type" value="$(arg secondary_type)" />
+	<param name="boundary_radius" value="$(arg boundary_radius)" />
+	<param name="bebopName" value="$(arg bebopName)" />
+	<param name="sec" value="$(arg sec)" />
+  </node>
+  <node pkg="bebop_sw_basic" type="switched_trajectory_node" name="switched_trajectory" output="screen">
+	<param name="e1_max" value="$(arg e1_max)" />
+	<param name="e2_max" value="$(arg e2_max)" />
+	<param name="e1_min" value="$(arg e1_min)" />
+	<param name="e2_min" value="$(arg e2_min)" />
+	<param name="lu" value="$(arg lu)" />
+	<param name="switched_type" value="$(arg switched_type)" />
+	<param name="bebopName" value="$(arg bebopName)" />
+	<param name="loopRate" value="$(arg loopRate)" />
+	<rosparam param="k1" subst_value="True"> $(arg k1)</rosparam>
+	<rosparam param="dmax" subst_value="True"> $(arg dmax)</rosparam>
+  </node>
+  
+  <node pkg="bebop_sw_basic" type="bebop_control_node" name="bebop_control_node" output="screen">
+	<rosparam param="linVelGains" subst_value="True"> $(arg linVelGains)</rosparam><!-- gain for linear velocity error tracking (Kp,Kd,Ki)-->
+    <rosparam param="angVelGains" subst_value="True"> $(arg angVelGains)</rosparam><!-- gain for angular velocity error tracking (Kp,Kd,Ki)-->
+  </node>
+  <node name="record" pkg="rosbag" type="record" args="-o /home/ncr/experiment_data/bebop_sw/exp_bebop_sw.bag /bebop1/mocapPose /bebop1/odom /bebop1/predictorPose /bebop1/switchedTwist /bebop1/switchedPose /bebop1/cmd_vel /bebop1/desTwist /bebop1/primaryPose /bebop1/boundaryPose /bebop1/secondaryPose" />
+    
+<!--
+  <node name="aruco" pkg="aruco_ros" type="aruco_ros_node" output="screen">
+    <param name="camera" value="$(arg cameraName)" /> 
+    <param name="markerSize" value="$(arg markerSize)" /> 
+    <param name="drawMarkers" value="$(arg drawMarkers)" /> 
+    <param name="adaptiveROI" value="$(arg adaptiveROI)" />
+    <param name="image_frame_id" value="$(arg image_frame_id)" /> 
+    <param name="drawROI" value="$(arg drawROI)" />
+    <param name="republishCamInfo" value="$(arg republishCamInfo)" />
+    <param name="adaptiveROIfactor" value="$(arg adaptiveROIfactor)" />
+  </node>
+-->
+    
+
+</launch>
